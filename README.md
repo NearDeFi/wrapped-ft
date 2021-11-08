@@ -1,5 +1,10 @@
 ## Example with wNEAR on testnet
 
+* `$CONTRACT_ID` - the account ID of the new token fNEAR
+* `$OWNER_ID` - the account ID of the controller/owner.
+* `wrap.testnet` - the token ID that is being wrapped/locked. wNEAR is used for the example.
+* `$ACCOUNT_ID` - the account ID of a test account.
+
 #### Init
 
 ```bash
