@@ -212,13 +212,31 @@ impl Contract {
     }
 
     #[payable]
-    pub fn unwrap(&mut self) -> Promise {
+    pub fn lock(&mut self) {
+        assert_one_yocto();
+        self.assert_owner();
+        assert!(!matches!(self.status, Status::Locked));
+        self.status = Status::Locked;
+    }
+
+    #[payable]
+    pub fn unwrap(&mut self, account_id: Option<ValidAccountId>) -> Promise {
         assert_one_yocto();
         assert!(
             matches!(self.status, Status::Unlocked),
             "The token is still locked"
         );
-        let account_id = env::predecessor_account_id();
+        let predecessor_id = env::predecessor_account_id();
+
+        let account_id = if let Some(account_id) = account_id {
+            let account_id: AccountId = account_id.into();
+            if account_id != predecessor_id {
+                self.assert_owner();
+            }
+            account_id
+        } else {
+            predecessor_id
+        };
         let balance = self.ft.accounts.get(&account_id).unwrap_or(0);
         self.ft.internal_withdraw(&account_id, balance);
         ext_fungible_token::ft_transfer(
