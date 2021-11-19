@@ -1,7 +1,6 @@
 ## Example with wNEAR on testnet
 
 * `$CONTRACT_ID` - the account ID of the new token fNEAR
-* `$OWNER_ID` - the account ID of the controller/owner.
 * `wrap.testnet` - the token ID that is being wrapped/locked. wNEAR is used for the example.
 * `$ACCOUNT_ID` - the account ID of a test account.
 
@@ -11,7 +10,6 @@
 near call $CONTRACT_ID --accountId=$OWNER_ID new '{
   "locked_token_account_id": "wrap.testnet",
   "meta": {"spec": "ft-1.0.0", "name": "Future NEAR", "symbol": "fNEAR", "decimals": 24},
-  "owner_id": "'$OWNER_ID'"
 }'
 ```
 
@@ -69,39 +67,6 @@ near view $CONTRACT_ID ft_balance_of '{"account_id": "'$OWNER_ID'"}'
 near view $CONTRACT_ID ft_balance_of '{"account_id": "'$ACCOUNT_ID'"}' 
 ```
 
-#### Attempt to transfer back (should fail, because not whitelisted)
-
-```bash
-near call $CONTRACT_ID --accountId=$ACCOUNT_ID --depositYocto=1 ft_transfer '{
-  "receiver_id": "'$OWNER_ID'",
-  "amount": "1000000000000000000000000"
-}' 
-```
-
-Expected error:
-```
-'Not whitelisted for transfers'
-```
-
-#### Attempt to unwrap (should fail, still locked)
-
-```bash
-near call $CONTRACT_ID --accountId=$ACCOUNT_ID --depositYocto=1 --gas=100000000000000 unwrap ''
-```
-
-Expected error:
-```
-'The token is still locked'
-```
-
-#### Whitelist transfers for the account
-
-```bash
-near call $CONTRACT_ID --accountId=$OWNER_ID --depositYocto=1 add_transfer_whitelist '{
-  "account_id": "'$ACCOUNT_ID'"
-}'
-```
-
 #### Transfer of 0.1 by the account to the owner
 
 ```bash
@@ -109,12 +74,6 @@ near call $CONTRACT_ID --accountId=$ACCOUNT_ID --depositYocto=1 ft_transfer '{
   "receiver_id": "'$OWNER_ID'",
   "amount": "100000000000000000000000"
 }' 
-```
-
-#### Unlock the unwrapping by the owner
-
-```bash
-near call $CONTRACT_ID --accountId=$OWNER_ID --depositYocto=1 unlock ''
 ```
 
 #### Attempt to unwrap the token (should fail, no wNEAR storage)
